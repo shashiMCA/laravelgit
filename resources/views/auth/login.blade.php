@@ -2,6 +2,11 @@
 
 @section('content')
 <div class="container">
+    @if(session('message'))
+    <div class="alert alert-primary text-center">{{session('message')}} </div>
+    @endif
+        
+    
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
