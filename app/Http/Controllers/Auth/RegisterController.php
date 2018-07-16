@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Mail\VeryfyUserByMail;
+use Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -68,15 +70,32 @@ class RegisterController extends Controller
     {
     
         
-        $user=User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'verifyToken' => str_random(20),
            
         ]);
+        Mail::to($user->email)->send(new VeryfyUserByMail($user));
+       return  $user;
+    }
+    public function verifyUser($email, $token){
         
-      //dd($user);
-        return  $user;
+        $user = User::where(['email'=>$email,'verifyToken'=>$token])->first();
+        if($user){
+            $user->verifyToken='';
+            $user->status=1;
+            if($user->save()){
+                
+                return redirect('login')->with('message','your account is verify sucessfully');
+            } else {
+            return redirect('login')->with('message', 'invalid email or token');    
+            }
+            
+        } else {
+         return redirect('login')->with('message','there is mismatch the token');    
+        }
+        
     }
 }
