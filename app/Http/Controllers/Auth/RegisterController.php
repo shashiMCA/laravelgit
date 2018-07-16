@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use App\Mail\VeryfyUserByMail;
 use Mail;
+use App\Events\RegisterMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -77,8 +78,13 @@ class RegisterController extends Controller
             'verifyToken' => str_random(20),
            
         ]);
+        // below line simple method to send the activation mail to the user 
+        /*
         Mail::to($user->email)->send(new VeryfyUserByMail($user));
-       return  $user;
+        */
+        // NOW WE USE EVENT LISTENER FOR THE SAME PURPOSE MEANS SEND THE MAIL.
+        event(new RegisterMail($user));
+        return  $user;
     }
     public function verifyUser($email, $token){
         
